@@ -24,12 +24,8 @@ public class FacebookLoginTest {
     private WebDriver driver;
     private String facebookEmail, facebookPass;
 
-    public static void main(String[] args) throws InterruptedException {
-        try{
-            new FacebookLoginTest().execute();
-        } catch (InterruptedException e) {
-            System.out.println("Threading error");
-        }
+    public static void main(String[] args) {
+        new FacebookLoginTest().execute();
     }
 
     public FacebookLoginTest () {
@@ -47,13 +43,12 @@ public class FacebookLoginTest {
         this.readLoginsFromConsole();
     }
 
-    public void execute () throws InterruptedException {
+    public void execute () {
         this.driver = new ChromeDriver(generateChromeOptions());
 
         driver.get("https://facebook.com");
-        Thread.sleep(2000);
 
-        WebElement emailField = driver.findElement(By.cssSelector("[name='email']"));
+        WebElement emailField = waitUntilElementIsFound(By.cssSelector("[name='email']"));
         emailField.clear();
         emailField.sendKeys(this.facebookEmail);
 
@@ -63,10 +58,16 @@ public class FacebookLoginTest {
         passField.sendKeys(Keys.ENTER);
 
         // clicking on Messenger shortcut in the toolbar
-        driver.findElement(By.cssSelector("[title='Messenger']")).click();
+        waitUntilElementIsFound(By.cssSelector("[title='Messenger']")).click();
 
-        Thread.sleep(1000);
-        String lastMessage = driver.findElement(By.cssSelector("[class='_3oh- _58nk']")).getText();
+        // waiting for the dialogue to load
+        waitUntilElementIsFound(By.cssSelector("[class='_3oh- _58nk']"));
+
+        // getting all message elements
+        List<WebElement> messages = driver.findElements(By.cssSelector("[class='_3oh- _58nk']"));
+        String lastMessage = messages.get( // selecting the last one
+                messages.size() - 1
+        ).getText();
         System.out.println("Your last message is: " + lastMessage);
 
         driver.quit();
@@ -85,6 +86,10 @@ public class FacebookLoginTest {
         System.out.print("Password: ");
         this.facebookPass = s.next();
         s.close();
+    }
+
+    private WebElement waitUntilElementIsFound(By rule) {
+        return new WebDriverWait(driver,2).until(ExpectedConditions.visibilityOfElementLocated(rule));
     }
 
     private static ChromeOptions generateChromeOptions() {
