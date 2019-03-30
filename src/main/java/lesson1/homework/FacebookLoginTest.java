@@ -20,7 +20,7 @@ import java.util.Scanner;
 
 public class FacebookLoginTest {
 
-    private final Path fbLoginsFilePath = Paths.get("/Users/oleksandrpohrebniak/stuff/fblogins.txt");
+    private final Path fbLoginsFilePath = Paths.get("stuff/fbLogins.txt");
     private WebDriver driver;
     private String facebookEmail, facebookPass;
 
@@ -44,33 +44,37 @@ public class FacebookLoginTest {
     }
 
     public void execute () {
-        this.driver = new ChromeDriver(generateChromeOptions());
+        try {
+            this.driver = new ChromeDriver(generateChromeOptions());
 
-        driver.get("https://facebook.com");
+            driver.get("https://facebook.com");
 
-        WebElement emailField = waitUntilElementIsFound(By.cssSelector("[name='email']"));
-        emailField.clear();
-        emailField.sendKeys(this.facebookEmail);
+            WebElement emailField = waitUntilElementIsFound(By.cssSelector("[name='email']"));
+            emailField.clear();
+            emailField.sendKeys(this.facebookEmail);
 
-        WebElement passField = driver.findElement(By.cssSelector("[name='pass']"));
-        passField.clear();
-        passField.sendKeys(this.facebookPass);
-        passField.sendKeys(Keys.ENTER);
+            WebElement passField = driver.findElement(By.cssSelector("[name='pass']"));
+            passField.clear();
+            passField.sendKeys(this.facebookPass);
+            passField.sendKeys(Keys.ENTER);
 
-        // clicking on Messenger shortcut in the toolbar
-        waitUntilElementIsFound(By.cssSelector("[title='Messenger']")).click();
+            // clicking on Messenger shortcut in the toolbar
+            waitUntilElementIsFound(By.cssSelector("[title='Messenger']")).click();
 
-        // waiting for the dialogue to load
-        waitUntilElementIsFound(By.cssSelector("[class='_3oh- _58nk']"));
+            // waiting for the dialogue to load
+            waitUntilElementIsFound(By.cssSelector("[class='_3oh- _58nk']"));
 
-        // getting all message elements
-        List<WebElement> messages = driver.findElements(By.cssSelector("[class='_3oh- _58nk']"));
-        String lastMessage = messages.get( // selecting the last one
-                messages.size() - 1
-        ).getText();
-        System.out.println("Your last message is: " + lastMessage);
-
-        driver.quit();
+            // getting all message elements
+            List<WebElement> messages = driver.findElements(By.cssSelector("span[class='_3oh- _58nk']"));
+            String lastMessage = messages.get( // selecting the last one
+                    messages.size() - 1
+            ).getText();
+            System.out.println("Your last message is: " + lastMessage);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        } finally {
+            driver.quit();
+        }
     }
 
     private void readLoginsFromFile() throws IOException {
@@ -89,7 +93,7 @@ public class FacebookLoginTest {
     }
 
     private WebElement waitUntilElementIsFound(By rule) {
-        return new WebDriverWait(driver,2).until(ExpectedConditions.visibilityOfElementLocated(rule));
+        return new WebDriverWait(driver,5).until(ExpectedConditions.presenceOfElementLocated(rule));
     }
 
     private static ChromeOptions generateChromeOptions() {
