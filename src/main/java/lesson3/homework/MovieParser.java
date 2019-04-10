@@ -70,6 +70,10 @@ public class MovieParser extends BaseTest {
                 ).getText()
                 + "/100"
         );
+
+        System.out.println("Reviews: " + parseReviews());
+
+        System.out.println("Similar movies: " + parseSimilars());
     }
 
     private String formatDuration(String time) {
@@ -99,5 +103,48 @@ public class MovieParser extends BaseTest {
         }
         cast = cast.substring(0, cast.length() - 2); // removing extra comma and space
         return cast;
+    }
+
+    private String parseReviews() {
+        WebElement container = this.driver.findElement(
+                By.xpath("//div[@class='titleReviewBarItem titleReviewbarItemBorder']//span")
+        );
+
+        int users = parseReviewCount(
+                container.findElement(
+                        By.xpath("./a[1]")
+                ).getText()
+        );
+
+        int critics = parseReviewCount(
+                container.findElement(
+                        By.xpath("./a[2]")
+                ).getText()
+        );
+
+        return users + " users, " + critics + " critics, " + (users + critics) + " total";
+    }
+
+    private String parseSimilars() {
+        WebElement container = this.driver.findElement(
+                By.xpath("//div[@class='rec_page rec_selected']")
+        );
+
+        String similars = "";
+        for (int i = 0; i < 3; i++) {
+            similars += "\"" + container.findElement(
+                    By.xpath("./div[" + (i + 1) + "]/a/img")
+            ).getAttribute("title") + "\", ";
+        }
+        similars = similars.substring(0, similars.length() - 2); // removing extra comma and space
+        return similars;
+    }
+
+    private int parseReviewCount(String s) {
+        return Integer.parseInt(
+                s.substring(
+                        0, s.indexOf(" ")
+                ).replaceAll(",", "")
+        );
     }
 }
