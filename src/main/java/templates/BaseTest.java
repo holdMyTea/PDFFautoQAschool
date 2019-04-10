@@ -1,4 +1,4 @@
-package lesson5.lecture;
+package templates;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -6,15 +6,15 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 
 public class BaseTest {
-    WebDriver driver;
+    protected WebDriver driver;
 
     @BeforeTest
-    void setUp() {
+    protected void setUp() {
         driver = new ChromeDriver();
     }
 
     @AfterTest
-    void cleanUp() {
+    protected void cleanUp() {
         driver.quit();
     }
 }
